@@ -80,8 +80,7 @@ def naked_twins(values):
     vertical_units = [ cross(rows,col) for col in cols ]
     horizontal_units = [ cross(row,cols) for row in rows ]
     squared_units = [ cross(row,col) for row in ['ABC', 'DEF', 'GHI'] for col in ['123','456','789'] ]
-    diagonal_units = [ [rows[i] + cols[i] for i in range(len(rows))],
-                    [rows[i] + cols[len(rows)-i-1] for i in range(len(rows))] ]
+    diagonal_units = [ [row+col for row,col in zip(rows,cols)], [row+col for row,col in zip(rows,cols[::-1])] ]
 
     # Put them all in a single list for easier processing
     unit_list = vertical_units + horizontal_units + squared_units + diagonal_units
@@ -105,8 +104,6 @@ def naked_twins(values):
 
 
     return tmp_vals
-    # Find all instances of naked twins
-    # Eliminate the naked twins as possibilities for their peers
 
 
 
@@ -191,8 +188,7 @@ def eliminate(values):
     vertical_units = [ cross(rows,col) for col in cols ]
     horizontal_units = [ cross(row,cols) for row in rows ]
     squared_units = [ cross(row,col) for row in ['ABC', 'DEF', 'GHI'] for col in ['123','456','789'] ]
-    diagonal_units = [ [rows[i] + cols[i] for i in range(len(rows))],
-                    [rows[i] + cols[len(rows)-i-1] for i in range(len(rows))] ]
+    diagonal_units = [ [row+col for row,col in zip(rows,cols)], [row+col for row,col in zip(rows,cols[::-1])] ]
 
     # Put them all in a single list for easier processing
     unit_list = vertical_units + horizontal_units + squared_units + diagonal_units
@@ -236,8 +232,7 @@ def only_choice(values):
     vertical_units = [ cross(rows,col) for col in cols ]
     horizontal_units = [ cross(row,cols) for row in rows ]
     squared_units = [ cross(row,col) for row in ['ABC', 'DEF', 'GHI'] for col in ['123','456','789'] ]
-    diagonal_units = [ [rows[i] + cols[i] for i in range(len(rows))],
-                    [rows[i] + cols[len(rows)-i-1] for i in range(len(rows))] ]
+    diagonal_units = [ [row+col for row,col in zip(rows,cols)], [row+col for row,col in zip(rows,cols[::-1])] ]
 
     # Put them all in a single list for easier processing
     unit_list = vertical_units + horizontal_units + squared_units + diagonal_units
