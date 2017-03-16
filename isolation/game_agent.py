@@ -91,7 +91,7 @@ def custom_score(game, player):
         The heuristic value of the current game state to the specified player.
     """
 
-    k = 4.0
+    k = 5.0
 
     if game.is_loser(player):
         return float("-inf")
@@ -205,13 +205,12 @@ class CustomPlayer:
             # here in order to avoid timeout. The try/except block will
             # automatically catch the exception raised by the search method
             # when the timer gets close to expiring
+            depth = self.search_depth
             if self.method == 'minimax':
                 if self.iterative:
                     depth = 1
                     while True:
-                        new_heuristic, new_move = self.minimax(game,depth)
-                        if new_heuristic > best_heuristic:
-                            best_heuristic, best_move = new_heuristic, new_move
+                        best_heuristic, best_move = self.minimax(game,depth)
                         depth = depth+1 
                 else:
                     best_heuristic, best_move = self.minimax(game, self.search_depth)
@@ -220,9 +219,7 @@ class CustomPlayer:
                 if self.iterative:
                     depth = 1
                     while True:
-                        new_heuristic, new_move = self.alphabeta(game,depth)
-                        if new_heuristic > best_heuristic:
-                            best_heuristic, best_move = new_heuristic, new_move
+                        best_heuristic, best_move = self.alphabeta(game,depth)
                         depth = depth+1
                 else:
                     best_heuristic, best_move = self.alphabeta(game, self.search_depth)
@@ -275,7 +272,7 @@ class CustomPlayer:
         if not legal_moves:
             return float("-inf"), (-1,-1)
 
-        if depth == 1:
+        if depth == 1 or len(game.get_blank_spaces()) == 1:
             if maximizing_player:
                 return max( [ ( self.score(game.forecast_move(move),self),move ) for move in legal_moves ] )
             else:
@@ -334,14 +331,16 @@ class CustomPlayer:
         legal_moves = game.get_legal_moves()
 
         if not legal_moves:
-            return float("-inf"), (-1,-1)
+            return float("-inf"), (-1,1)
 
 
-        if depth == 1:
+        if depth == 1 or len(game.get_blank_spaces()) == 1:
             if maximizing_player:
                 best_score, best_move = float("-inf"), legal_moves[0]
                 for move in legal_moves:
                     score = self.score(game.forecast_move(move),self)
+                    if self.time_left() < self.TIMER_THRESHOLD:
+                      raise Timeout()
                     if score >= beta:
                         return score, move
                     else:
@@ -354,6 +353,8 @@ class CustomPlayer:
                 worst_score, worst_move = float("inf"), (-1,-1)
                 for move in legal_moves:
                     score = self.score(game.forecast_move(move),self)
+                    if self.time_left() < self.TIMER_THRESHOLD:
+                      raise Timeout()
                     if score <= alpha:
                         return score, move
                     else:
@@ -367,6 +368,8 @@ class CustomPlayer:
                 best_score, best_move = float("-inf"), legal_moves[0]
                 for move in legal_moves:
                     score = self.alphabeta(game.forecast_move(move),depth-1,alpha,beta,not maximizing_player)[0]
+                    if self.time_left() < self.TIMER_THRESHOLD:
+                      raise Timeout()
                     if score >= beta:
                         return score,move
                     else:
@@ -380,10 +383,13 @@ class CustomPlayer:
                 worst_score, worst_move = float("inf"), (-1,-1)
                 for move in legal_moves:
                     score = self.alphabeta(game.forecast_move(move),depth-1,alpha,beta,not maximizing_player)[0]
+                    if self.time_left() < self.TIMER_THRESHOLD:
+                      raise Timeout()
                     if score <= alpha:
                         return score,move
                     else:
                         if score < worst_score:
                             worst_score, worst_move, = score, move
+                            beta = score
 
                 return worst_score, worst_move
