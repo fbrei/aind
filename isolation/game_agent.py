@@ -189,8 +189,6 @@ class CustomPlayer:
 
         self.time_left = time_left
 
-        # TODO: finish this function!
-
         # Perform any required initializations, including selecting an initial
         # move from the game board (i.e., an opening book), or returning
         # immediately if there are no legal moves
@@ -269,19 +267,19 @@ class CustomPlayer:
         
         legal_moves = game.get_legal_moves()
 
-        if not legal_moves:
-            return float("-inf"), (-1,-1)
+        if not game.get_legal_moves(self):
+            return game.utility(self), game.get_player_location(self)
 
-        if depth == 1 or len(game.get_blank_spaces()) == 1:
+        if depth == 1:
             if maximizing_player:
                 return max( [ ( self.score(game.forecast_move(move),self),move ) for move in legal_moves ] )
             else:
-                return min( [ ( self.score(game.forecast_move(move),self),move ) for move in legal_moves ] )
+                return min( [ ( self.score(game.forecast_move(move),self),move ) for move in legal_moves ] + [ (float("inf"), (-1,-1)) ] )
         else:
             if maximizing_player:
                 return max( [ (self.minimax(game.forecast_move(move),depth-1,not maximizing_player)[0], move) for move in legal_moves ] )  
             else:
-                return min( [ (self.minimax(game.forecast_move(move),depth-1,not maximizing_player)[0], move) for move in legal_moves ] )  
+                return min( [ (self.minimax(game.forecast_move(move),depth-1,not maximizing_player)[0], move) for move in legal_moves ] + [ (float("inf"), (-1,-1)) ] )  
 
 
 
@@ -330,8 +328,8 @@ class CustomPlayer:
         
         legal_moves = game.get_legal_moves()
 
-        if not legal_moves:
-            return float("-inf"), (-1,1)
+        if not game.get_legal_moves(self):
+            return game.utility(self), game.get_player_location(self)
 
 
         if depth == 1 or len(game.get_blank_spaces()) == 1:
