@@ -209,6 +209,12 @@ class AirCargoProblem(Problem):
         executed.
         '''
         # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
+        count = 0
+        goal_tf = encode_state(FluentState(self.goal,[]),self.state_map)
+
+        for ii in range(len(goal_tf)):
+            if goal_tf[ii] == 'T' and node.state[ii] == 'F':
+                count = count + 1
 
         return count
 

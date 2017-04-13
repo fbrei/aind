@@ -316,7 +316,7 @@ class PlanningGraph():
 
         for a in self.all_actions:
             node = PgNode_a(a)
-            new_prenodes = set()
+            parents = set()
 
             satisfiable = [ False for n in range(len(node.prenodes)) ]
             ii = 0
@@ -324,12 +324,12 @@ class PlanningGraph():
                 for s in self.s_levels[level]:
                     if p == s:
                         satisfiable[ii] = True
-                        new_prenodes.add(s)
+                        parents.add(s)
                         break
                 ii = ii+1
             if all(satisfiable):
                 self.a_levels[level].add(node)
-                node.prenodes = new_prenodes
+                node.parents = parents
 
 
 
@@ -361,11 +361,11 @@ class PlanningGraph():
                 self.s_levels[level].add(PgNode_s(n,False))
 
         for a in self.a_levels[level-1]:
-            new_effnodes = set()
+            children = set()
             for s in self.s_levels[level]:
                 if s in a.effnodes:
-                    new_effnodes.add(s)
-            a.effnodes = new_effnodes
+                    children.add(s)
+            a.children = children
 
     def update_a_mutex(self, nodeset):
         ''' Determine and update sibling mutual exclusion for A-level nodes
@@ -471,6 +471,11 @@ class PlanningGraph():
         '''
 
         # TODO test for Competing Needs between nodes
+        for e1 in node_a1.parents:
+            for e2 in node_a2.parents:
+                if e1.is_mutex(e2):
+                    return True
+
         return False
 
     def update_s_mutex(self, nodeset: set):
@@ -506,7 +511,7 @@ class PlanningGraph():
         :return: bool
         '''
         # TODO test for negation between nodes
-        return False
+        return (node_s1.symbol == node_s2.symbol) and (node_s1.is_pos != node_s2.is_pos)
 
     def inconsistent_support_mutex(self, node_s1: PgNode_s, node_s2: PgNode_s):
         '''
@@ -525,7 +530,12 @@ class PlanningGraph():
         :return: bool
         '''
         # TODO test for Inconsistent Support between nodes
-        return False
+        for a1 in node_s1.parents:
+            for a2 in node_s2.parents:
+                if not a1.is_mutex(a2):
+                    return False
+
+        return True
 
     def h_levelsum(self) -> int:
         '''The sum of the level costs of the individual goals (admissible if goals independent)
@@ -534,5 +544,18 @@ class PlanningGraph():
         '''
         level_sum = 0
         # TODO implement
-        # for each goal in the problem, determine the level cost, then add them together
+        goals = { }
+        for g in self.problem.goal:
+            goals[PgNode_s(g,True)] = -1
+        
+        for ii in range(len(self.s_levels)):
+            for g in goals:
+                if g in self.s_levels[ii] and goals[g] == -1:
+                    goals[g] = ii
+
+        for g in goals:
+            level_sum = level_sum + goals[g]
+            if goals[g] == -1:
+                return float("inf")
+
         return level_sum
