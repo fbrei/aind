@@ -137,17 +137,16 @@ class AirCargoProblem(Problem):
         possible_actions = []
 
         actual_state = decode_state(state, self.state_map)
-        kb = PropKB(actual_state.sentence())
 
         for a in self.actions_list:
             sat = True
             for p in a.precond_pos:
-                if not kb.ask_if_true(p):
+                if p not in actual_state.pos:
                     sat = False
                     break
             if sat:
                 for n in a.precond_neg:
-                    if kb.ask_if_true(n):
+                    if n not in actual_state.neg:
                         sat = False
                         break
             if sat:
@@ -177,11 +176,12 @@ class AirCargoProblem(Problem):
         :param state: str representing state
         :return: bool
         """
-        kb = PropKB()
-        kb.tell(decode_state(state, self.state_map).pos_sentence())
-        for clause in self.goal:
-            if clause not in kb.clauses:
+
+        actual_state = decode_state(state,self.state_map)
+        for s in self.goal:
+            if s not in actual_state.pos:
                 return False
+
         return True
 
     def h_1(self, node: Node):
@@ -325,11 +325,11 @@ def air_cargo_p3() -> AirCargoProblem:
            expr('At(P2, ATL)'),
            expr('At(P2, ORD)'),
            ]
-    init = FluentState(pos, neg)
     goal = [expr('At(C1, JFK)'),
             expr('At(C2, SFO)'),
             expr('At(C3, JFK)'),
-            expr('At(C4, SFO)'),
+            expr('At(C4, ORD)')
             ]
+    init = FluentState(pos, neg)
+
     return AirCargoProblem(cargos, planes, airports, init, goal)
-    pass
