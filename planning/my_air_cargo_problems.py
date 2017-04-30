@@ -32,8 +32,6 @@ class AirCargoProblem(Problem):
         self.planes = planes
         self.airports = airports
         self.actions_list = self.get_actions()
-        for a in self.actions_list:
-            print(a.name, a.args)
 
     def get_actions(self):
         '''
@@ -297,7 +295,6 @@ def air_cargo_p3() -> AirCargoProblem:
            expr('At(C4, ORD)'),
            expr('At(P1, SFO)'),
            expr('At(P2, JFK)'),
-           expr('At(P3, ORD)')
            ]
     neg = [expr('At(C2, SFO)'),
            expr('At(C2, ATL)'),
